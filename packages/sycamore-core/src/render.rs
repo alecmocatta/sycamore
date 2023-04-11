@@ -159,7 +159,7 @@ pub fn clean_children<G: GenericNode>(
     parent: &G,
     current: Vec<G>,
     _marker: Option<&G>,
-    replacement: Option<&G>,
+    mut replacement: Option<&G>,
     multi: bool,
 ) {
     if !multi {
@@ -172,7 +172,7 @@ pub fn clean_children<G: GenericNode>(
 
     for node in current {
         if node.parent_node().as_ref() == Some(parent) {
-            if let Some(replacement) = replacement {
+            if let Some(replacement) = replacement.take() {
                 if &node != replacement {
                     parent.replace_child(&node, replacement);
                 }
@@ -180,6 +180,9 @@ pub fn clean_children<G: GenericNode>(
                 parent.remove_child(&node);
             }
         }
+    }
+    if let Some(replacement) = replacement {
+        parent.append_child(replacement);
     }
 }
 
